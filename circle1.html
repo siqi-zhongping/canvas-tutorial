@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>前端基础代码示例</title>
+  <style type="text/css">
+     body, canvas {  
+      margin: 0;  
+      overflow: hidden;  
+      width: 100%;  
+      height: 100%;  
+      position: relative;  
+    }  
+  </style>
+</head>
+<body>
+  <canvas id="circle"></canvas>
+  <script>
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+    var canvas = document.getElementById("circle");
+    canvas.width=width;
+    canvas.height=height;
+    var ctx = canvas.getContext("2d");
+    var startAngle = 0;
+    var endAngle = 2 * Math.PI;
+    var circleNum = 100;
+    var x = width/2;
+    var y = height/2;
+
+    function animate(circleArr){
+      requestAnimationFrame(() => animate(circleArr));
+      update(circleArr);
+    }
+
+
+    function update(circleArr){
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for(var i=0;i<circleArr.length;i++){
+        var cir = circleArr[i];
+        if(cir.x+cir.radius>=canvas.width || cir.x-cir.radius<=0){
+          cir.stepx = -cir.stepx;
+        }
+        if(cir.y+cir.radius>=canvas.height || cir.y-cir.radius<=0){
+          cir.stepy = -cir.stepy;
+        }
+        cir.x = cir.x+cir.stepx;
+        cir.y = cir.y+cir.stepy;
+        ctx.beginPath();
+        if(x != undefined && y != undefined) {
+          if(x-Math.floor(cir.x) <=10  && x-Math.floor(cir.x) >- 10 && y-Math.floor(cir.y) <=10  && y-Math.floor(cir.y) >- 10){
+            if(cir.radius<=40){
+              cir.radius = cir.radius + 1;
+            }
+          }
+        }
+        ctx.arc(cir.x, cir.y, cir.radius, startAngle, endAngle);
+        ctx.fillStyle = cir.color; // 设置填充颜色
+        ctx.fill();
+      }
+    }
+
+    function Circle(x,y,radius,stepx,stepy,color){
+      this.x = x;
+      this.y = y;
+      this.radius = radius;
+      this.stepx = stepx;
+      this.stepy = stepy;
+      this.color = color;
+    }
+    var circleArr = [];
+    var colorArr= ['#F26872','#F5B034','#9E33F5','#68A2F2','#68F2DF','rgb(249, 24, 128)'];
+    for(var i=0;i<1000;i++){
+      var circle = new Circle(getRandomIntInclusive(50,width-50),getRandomIntInclusive(50,height-50)
+      ,getRandomIntInclusive(2,20),getRandomIntInclusive(0,0.5),getRandomIntInclusive(0,0.5),colorArr[getRandomInt(0,6)]);
+      circleArr.push(circle);
+    }
+    animate(circleArr);
+    function getRandomIntInclusive(min, max) {  
+      return Math.random() * (max - min) + min;
+    }
+    function getRandomInt(min, max) {  
+  return Math.floor(Math.random() * (max - min + 1)) + min;  
+} 
+
+window.addEventListener('resize', function(event) {  
+  // 这个函数会在窗口大小发生变化时被调用  
+  canvas.width= window.innerWidth ;
+  canvas.height= window.innerHeight;
+  width = window.innerWidth;
+  height = window.innerHeight;
+  draw(circleArr);
+  animate(circleArr);
+});
+  </script>
+</body>
+</html>
