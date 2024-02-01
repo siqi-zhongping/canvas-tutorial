@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>前端基础代码示例</title>
+  <style type="text/css">
+     body, canvas { 
+      margin: 0;  
+      overflow: hidden;  
+      width: 100%;  
+      height: 100%;  
+      position: relative;  
+    }  
+  </style>
+</head>
+<body>
+  <canvas id="circle"></canvas>
+  <script>
+    var innerWidth = window.innerWidth;
+    var innerHeight = window.innerHeight;
+    var canvas = document.getElementById("circle");
+    canvas.width=innerWidth;
+    canvas.height=innerHeight;
+    var ctx = canvas.getContext("2d");
+    var circleArr = [];
+
+    function rectObj(x,y,width,height,color){
+      this.x = x;
+      this.y = y;
+      this.width = width;
+      this.height = height;
+      this.color = color;
+      this.draw = function(){
+        ctx.fillStyle = color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+      }
+    }
+    function init(){
+      var reactOb = new rectObj(innerWidth/2, innerHeight/2-200, 400, 400,'#9E33F5');
+      reactOb.draw();
+    }
+    init();
+    window.addEventListener('mousemove', (event) => {  
+      // 获取当前鼠标位置的坐标
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      init();
+      const mouseX = event.clientX;  
+      const mouseY = event.clientY;
+      var reactOb = new rectObj(mouseX, mouseY, 200, 200,'#F26872');
+      
+      reactOb.draw();
+      if(mouseX<=innerWidth/2 && mouseX+200>=innerWidth/2){
+        console.log("撞了撞了撞了");
+      }
+    });
+    
+    var colorArr = ['#F26872','#F5B034','#9E33F5','#68A2F2','#68F2DF','rgb(249, 24, 128)'];
+</script>
+</body>
+</html>
