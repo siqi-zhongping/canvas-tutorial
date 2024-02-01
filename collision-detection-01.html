@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>前端基础代码示例</title>
+  <style type="text/css">
+     body, canvas {  
+      margin: 0;  
+      overflow: hidden;  
+      width: 100%;  
+      height: 100%;  
+      position: relative;  
+    }  
+  </style>
+</head>
+<body>
+  <canvas id="circle"></canvas>
+  <script>
+    var innerWidth = window.innerWidth;
+    var innerHeight = window.innerHeight;
+    var canvas = document.getElementById("circle");
+    canvas.width=innerWidth;
+    canvas.height=innerHeight;
+    var ctx = canvas.getContext("2d");
+    var circleArr = [];
+    
+function rotate(velocity, angle) {
+    const rotatedVelocities = {
+        x: velocity.x * Math.cos(angle) - velocity.y * Math.sin(angle),
+        y: velocity.x * Math.sin(angle) + velocity.y * Math.cos(angle)
+    };
+    return rotatedVelocities;
+}
+
+/**
+ * Swaps out two colliding particles' x and y velocities after running through
+ * an elastic collision reaction equation
+ *
+ * @param  Object | particle      | A particle object with x and y coordinates, plus velocity
+ * @param  Object | otherParticle | A particle object with x and y coordinates, plus velocity
+ * @return Null | Does not return a value
+ */
+
+function resolveCollision(particle, otherParticle) {
+    const xVelocityDiff = particle.velocity.x - otherParticle.velocity.x;
+    const yVelocityDiff = particle.velocity.y - otherParticle.velocity.y;
+
+    const xDist = otherParticle.x - particle.x;
+    const yDist = otherParticle.y - particle.y;
+
+    // Prevent accidental overlap of particles
+    if (xVelocityDiff * xDist + yVelocityDiff * yDist >= 0) {
+
+        // Grab angle between the two colliding particles
+        const angle = -Math.atan2(otherParticle.y - particle.y, otherParticle.x - particle.x);
+
+        // Store mass in var for better readability in collision equation
+        const m1 = particle.mass;
+        const m2 = otherParticle.mass;
+
+        // Velocity before equation
+        const u1 = rotate(particle.velocity, angle);
+        const u2 = rotate(otherParticle.velocity, angle);
+
+        // Velocity after 1d collision equation
+        const v1 = { x: u1.x * (m1 - m2) / (m1 + m2) + u2.x * 2 * m2 / (m1 + m2), y: u1.y };
+        const v2 = { x: u2.x * (m1 - m2) / (m1 + m2) + u1.x * 2 * m2 / (m1 + m2), y: u2.y };
+
+        // Final velocity after rotating axis back to original location
+        const vFinal1 = rotate(v1, -angle);
+        const vFinal2 = rotate(v2, -angle);
+
+        // Swap particle velocities for realistic bounce effect
+        particle.velocity.x = vFinal1.x;
+        particle.velocity.y = vFinal1.y;
+
+        otherParticle.velocity.x = vFinal2.x;
+        otherParticle.velocity.y = vFinal2.y;
+    }
+}
+
+
+
+    function Circle(x,y,radius,color){
+      this.x = x;
+      this.y = y;
+      this.radius = radius;
+      this.color = color;
+      this.mass=1;
+      this.velocity = {
+        x:Math.random()-0.5,
+        y:Math.random()-0.5
+      }
+      this.draw = function(){
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+        ctx.fillStyle = this.color; // 设置填充颜色
+        ctx.fill();
+      }
+      this.update = function(){
+        ctx.beginPath();
+        if(this.x+this.radius>=canvas.width || this.x-this.radius<=0){
+          this.velocity.x = -this.velocity.x;
+        }
+        if(this.y+this.radius>=canvas.height || this.y-this.radius<=0){
+          this.velocity.y = -this.velocity.y;
+        }
+     
+
+        for(var i=0;i<circleArr.length;i++){
+          if(this != circleArr[i]){
+            if(getDistantce(circleArr[i],this)<=2*this.radius){
+              console.log("发生了碰撞");
+              resolveCollision(this,circleArr[i]);
+            }
+          }
+        }
+
+        this.x = this.x+this.velocity.x;
+        this.y = this.y+this.velocity.y;
+
+        ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+    
+     
+        ctx.fillStyle = this.color; // 设置填充颜色
+        ctx.save();
+        ctx.globalAlpha = 0.2;
+        if( this.x > 800 && this.x < 1000 ){
+          ctx.globalAlpha=1
+        }
+        ctx.fill();
+        ctx.restore();
+        ctx.strokeStyle = this.color;
+        ctx.stroke();
+       
+        
+      }
+
+
+    }
+    function getRandomIntInclusive(min, max) {  
+      return Math.random() * (max - min) + min;
+    }
+    function getRandomInt(min, max) {  
+      return Math.floor(Math.random() * (max - min + 1)) + min;  
+    } 
+    var colorArr = ['#F26872','#F5B034','#9E33F5','#68A2F2','#68F2DF','rgb(249, 24, 128)'];
+    function init(){
+      debugger
+      var radis =  getRandomInt(30,30);
+      while(circleArr.length < 90){
+        var x = getRandomInt(radis,innerWidth-radis);
+        var y = getRandomInt(radis,innerHeight-radis);
+        if(circleArr.length == 0){
+          var cir = new Circle(x,y,radis,colorArr[getRandomInt(0,5)]);
+          circleArr.push(cir);
+        }else{
+          var jugeResult = true;
+          var cir;
+          for(var i=0;i<circleArr.length;i++){
+            cir = new Circle(x,y,radis,colorArr[getRandomInt(0,5)]);
+            if(getDistantce(circleArr[i],cir)<=2*radis){
+              jugeResult = false;
+              break;
+            }
+          }
+          if(jugeResult){
+            circleArr.push(cir);
+          }
+        }
+        console.log(circleArr.length);
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for(var i=0;i<circleArr.length;i++){
+        circleArr[i].draw();
+      }
+    }
+    init();
+    function getDistantce(cir1,cir2){
+      var x1 = cir1.x;
+      var y1 = cir1.y;
+      var x2 = cir2.x;
+      var y2 = cir2.y;
+      var dx = x2-x1;
+      var dy = y2-y1;
+      return Math.sqrt(Math.pow(dx, 2)+Math.pow(dy, 2));
+    }
+  function animate(){
+    requestAnimationFrame(animate);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for(var i=0;i<circleArr.length;i++){
+      circleArr[i].update();
+    }
+  }
+  animate();
+</script>
+</body>
+</html>
