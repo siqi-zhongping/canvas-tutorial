@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>前端基础代码示例</title>
+  <style type="text/css">
+     body, canvas {  
+      margin: 0;  
+      overflow: hidden;  
+      width: 100%;  
+      height: 100%;  
+      position: relative;  
+    }  
+  </style>
+</head>
+<body>
+  <canvas id="circle"></canvas>
+  <script>
+    var innerWidth = window.innerWidth;
+    var innerHeight = window.innerHeight;
+    var canvas = document.getElementById("circle");
+    canvas.width=innerWidth;
+    canvas.height=innerHeight;
+    var ctx = canvas.getContext("2d");
+    var circleArr = [];
+
+    function Circle(x,y,radius,color){
+      this.x = x;
+      this.y = y;
+      this.radius = radius;
+      this.color = color;
+      this.radian = 0;
+      this.motionRadius = getRandomInt(100,400);
+      this.speed = getRandomIntInclusive(0.003,0.01);
+
+      this.velocity = {
+        x:Math.random()-0.5,
+        y:Math.random()-0.5
+      }
+      this.draw = function(){
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+        ctx.fillStyle = this.color; // 设置填充颜色
+        ctx.fill();
+      }
+      this.update = function(){
+        ctx.beginPath();
+        this.radian = this.radian+this.speed;
+        var oldx = this.x;
+        var oldy = this.y
+        var currentX = this.x+Math.cos(this.radian)*this.motionRadius;
+        var currentY = this.y+Math.sin(this.radian)* this.motionRadius;
+        
+        ctx.arc(currentX,currentY, this.radius, 0, 2 * Math.PI);
+        ctx.fillStyle = this.color; // 设置填充颜色
+        ctx.save();
+        ctx.globalAlpha = 0.5;
+        ctx.fill();
+        ctx.restore();
+        ctx.strokeStyle = this.color;
+        
+        ctx.moveTo(oldx, oldy);  
+        ctx.lineTo(this.x, this.y);  
+        ctx.stroke();
+
+
+        console.log(Math.cos(this.radian));
+        console.log(this.x);
+      }
+    }
+    var colorArr = ['#F26872','#F5B034','#9E33F5','#68A2F2','#68F2DF','rgb(249, 24, 128)'];
+    var circleArr = [];
+    function init(){
+      
+      for(var i=0;i<50;i++){
+        var cir = new Circle(innerWidth/2,innerHeight/2,30,colorArr[getRandomInt(0,5)]);
+        circleArr.push(cir);
+      }
+     
+      for(var i=0;i<circleArr.length;i++){
+        circleArr[i].draw();
+      }
+    }
+    init();
+    function animate(){
+      requestAnimationFrame(animate);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for(var i=0;i<circleArr.length;i++){
+        circleArr[i].update();
+      }
+    }
+    animate();
+  function getRandomIntInclusive(min, max) {  
+    return Math.random() * (max - min) + min;
+  }
+  function getRandomInt(min, max) {  
+    return Math.floor(Math.random() * (max - min + 1)) + min;  
+  } 
+</script>
+</body>
+</html>
