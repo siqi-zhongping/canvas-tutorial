@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>前端基础代码示例</title>
+  <style type="text/css">
+     body, canvas { 
+      margin: 0;  
+      overflow: hidden;  
+      width: 100%;  
+      height: 100%;  
+      position: relative;  
+    }  
+  </style>
+</head>
+<body>
+  <canvas id="circle"></canvas>
+  <script>
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+    var canvas = document.getElementById("circle");
+    canvas.width=width;
+    canvas.height=height;
+    var ctx = canvas.getContext("2d");
+    var startAngle = 0;
+    var endAngle = 2 * Math.PI;
+    var circleNum = 100;
+    var x = width/2;
+    var y = height/2;
+    var xVain = 0.9999;
+    var grivaty = 0.02;
+    var circleArr = [];
+    var colorArr= ['#F26872','#F5B034','#9E33F5','#68A2F2','#68F2DF','rgb(249, 24, 128)'];
+    var mouseX = x;  
+    var mouseY = y;  
+    class Circle {
+      constructor(x,y,radius,dx,dy,color) {  
+        this.x = x;
+        this.y = y;
+        this.initY = y;
+        this.velocity = getRandomIntInclusive(1, 3)
+        this.radius = radius;
+        this.radian = Math.random()*Math.PI*2;
+        this.color = color;
+        this.dx = Math.cos(this.radian)*this.velocity;
+        this.dy = Math.sin(this.radian)*this.velocity;
+      }
+      draw(){
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, startAngle, endAngle);
+    
+        
+        this.x = this.x + this.dx;
+        this.dx = this.dx*xVain;
+        
+        
+        this.y = this.y + this.dy;
+        this.dy = this.dy+grivaty;
+        
+        ctx.fillStyle = this.color; // 设置填充颜色
+        ctx.fill();
+      }
+      update(){
+        this.draw();
+      }
+    }
+    function animate(){
+      requestAnimationFrame(animate);
+      ctx.fillStyle="rgba(0,0,0,0.1)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      for(var i=0;i<circleArr.length;i++){
+        
+        circleArr[i].update();
+      }
+    }
+    animate(circleArr);
+
+    function getRandomIntInclusive(min, max) {  
+      return Math.random() * (max - min) + min;
+    }
+    function getRandomInt(min, max) {  
+      return Math.floor(Math.random() * (max - min + 1)) + min;  
+    } 
+
+    window.addEventListener('click', function(event) {  
+      mouseX = event.clientX;  
+      mouseY = event.clientY; 
+      circleArr=[];
+      for(var i=0;i<800;i++){
+        var circle = new Circle(mouseX,mouseY
+        ,5,getRandomIntInclusive(0,0),getRandomIntInclusive(0,0),colorArr[getRandomInt(0,6)]);
+        circleArr.push(circle);
+      }
+    });
+  </script>
+</body>
+</html>
